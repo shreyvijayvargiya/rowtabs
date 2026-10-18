@@ -13,7 +13,7 @@ Editable tables with 100 ready-made templates, an AI assistant and MCP. Everythi
 
 [![Watch the RowTabs demo (3:37)](marketing/rowtabs-explainer-thumb.png)](marketing/rowtabs-explainer.mp4)
 
-**Watch the 3 minute demo** · [Read the full article](marketing/rowtabs-medium-blog.md) · [Download the 100 table templates (CSV)](marketing/rowtabs-100-table-templates.csv)
+**Watch the 3 minute demo** · [Read the full article](marketing/rowtabs-medium-blog.md) · [Download the 100 table templates (CSV)](marketing/rowtabs-100-table-templates.csv) · [The prompt that built it](PROMPT.md)
 
 </div>
 
@@ -100,6 +100,8 @@ scripts/          add-theme.mjs (tweakcn themes)
 - **Demo video** (3:37, narrated, with subtitles): [`marketing/rowtabs-explainer.mp4`](marketing/rowtabs-explainer.mp4), narration script in [`marketing/rowtabs-explainer-narration.md`](marketing/rowtabs-explainer-narration.md), subtitles in [`marketing/rowtabs-explainer.srt`](marketing/rowtabs-explainer.srt).
 - **Article** ("I Built a Free, Open-Source Airtable Alternative That Lives in Your Browser"): [`marketing/rowtabs-medium-blog.md`](marketing/rowtabs-medium-blog.md), written for Medium.
 - **Template catalog** (all 100 gallery tables): [Markdown](marketing/rowtabs-100-table-templates.md) · [CSV](marketing/rowtabs-100-table-templates.csv), and the CSV can be imported straight into RowTabs.
+
+- **The prompt**: [`PROMPT.md`](PROMPT.md) has the prompt this app was built from and what made it work.
 
 ## Documentation
 
