@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Code-cell syntax highlighting (highlight.js tokens) */
+.hljs-comment,
+.hljs-quote {
+	color: rgb(var(--zinc-500));
+}
+
+.hljs-variable,
+.hljs-template-variable,
+.hljs-attribute,
+.hljs-tag,
+.hljs-name,
+.hljs-regexp,
+.hljs-link,
+.hljs-selector-id,
+.hljs-selector-class {
+	color: #e11d48;
+}
+
+.hljs-number,
+.hljs-meta,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params {
+	color: #f59e0b;
+}
+
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #10b981;
+}
+
+.hljs-title,
+.hljs-section {
+	color: rgb(var(--indigo-500));
+}
+
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8b5cf6;
+}
+
+.dark .hljs-comment,
+.dark .hljs-quote {
+	color: rgb(var(--zinc-400));
+}
+
+.dark .hljs-keyword,
+.dark .hljs-selector-tag {
+	color: #a78bfa;
+}
+
+.dark .hljs-string,
+.dark .hljs-symbol,
+.dark .hljs-bullet,
+.dark .hljs-addition {
+	color: #34d399;
+}
+
+.dark .hljs-number,
+.dark .hljs-meta,
+.dark .hljs-built_in,
+.dark .hljs-builtin-name,
+.dark .hljs-literal,
+.dark .hljs-type,
+.dark .hljs-params {
+	color: #fbbf24;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: 700;
+}
+
+/* Force Graph Tooltip */
+.scene-tooltip {
+background: transparent !important;
+	border: none !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+}
+
+.hidescrollbar::-webkit-scrollbar {
+	display: none;
+}
+.hidescrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+
+
+/* Hide scrollbars on every scroll container (Windows, Mac, Firefox).
+   Content stays scrollable; add .hide-scrollbar to any other element. */
+.hide-scrollbar,
+.overflow-y-auto,
+.overflow-x-auto,
+.overflow-auto {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar,
+.overflow-y-auto::-webkit-scrollbar,
+.overflow-x-auto::-webkit-scrollbar,
+.overflow-auto::-webkit-scrollbar {
+	display: none;
+	width: 0;
+	height: 0;
+}
