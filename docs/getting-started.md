@@ -38,7 +38,7 @@ Prefer your own data? Use **Import** to turn a CSV, Excel, JSON, Markdown or HTM
 | Limit | Value |
 | --- | --- |
 | Tables per browser | 200 |
-| Rows per table | 2,000 |
+| Rows per table | 10,000 |
 | Columns per table | 40 |
 | One attached file or image | 2 MB |
 | Size of one table | about 20 MB |

@@ -1,9 +1,9 @@
 import React, { useMemo, useRef, useState } from "react";
-import { FileSpreadsheet, Upload } from "lucide-react";
+import { ClipboardPaste, FileSpreadsheet, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { useApp } from "../../context/AppContext";
-import { IMPORT_ACCEPT, matrixToTable, readImportFile } from "../../tables/import";
+import { IMPORT_ACCEPT, matrixToTable, parsePastedText, readImportFile } from "../../tables/import";
 import { createTable } from "../../tables/tableService";
 import { LIMITS, cellText, typeOf } from "../../tables/schema";
 import { cn } from "../../utils/cn";
@@ -17,6 +17,8 @@ const ImportModal = () => {
 	const [source, setSource] = useState(null); // { title, matrix, fileName }
 	const [name, setName] = useState("");
 	const [header, setHeader] = useState(true);
+	const [tab, setTab] = useState("file"); // file | paste
+	const [pasted, setPasted] = useState("");
 
 	const parsed = useMemo(() => (source ? matrixToTable(source.matrix, { header }) : null), [source, header]);
 
@@ -24,6 +26,16 @@ const ImportModal = () => {
 		setSource(null);
 		setName("");
 		setHeader(true);
+		setPasted("");
+	};
+	const usePasted = () => {
+		try {
+			const matrix = parsePastedText(pasted);
+			setSource({ title: "Pasted table", matrix, fileName: "Pasted data" });
+			setName("Pasted table");
+		} catch (e) {
+			toast.error(e.message);
+		}
 	};
 	const close = (open) => {
 		app.setImportOpen(open);
@@ -55,13 +67,32 @@ const ImportModal = () => {
 
 	return (
 		<Dialog open={app.importOpen} onOpenChange={close}>
-			<DialogContent className="max-w-2xl">
+			<DialogContent className="max-h-[90vh] w-[calc(100vw-2rem)] max-w-2xl grid-cols-1 overflow-y-auto">
 				<DialogHeader>
 					<DialogTitle>Import a table</DialogTitle>
 					<DialogDescription>CSV, TSV, Excel (.xlsx), JSON, Markdown or HTML. Columns and their types are detected for you. Nothing leaves your browser.</DialogDescription>
 				</DialogHeader>
 
-				{!source ? (
+				{!source && (
+					<div className="flex gap-1 rounded-xl bg-zinc-100 p-1 dark:bg-zinc-900">
+						{[["file", "Upload file", Upload], ["paste", "Paste data", ClipboardPaste]].map(([k, label, Icon]) => (
+							<button key={k} type="button" onClick={() => setTab(k)} className={cn("flex h-8 flex-1 items-center justify-center gap-1.5 rounded-lg text-xs font-medium transition-colors", tab === k ? "bg-white shadow-sm dark:bg-zinc-800" : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200")}><Icon className="h-3.5 w-3.5" /> {label}</button>
+						))}
+					</div>
+				)}
+
+				{!source && tab === "paste" ? (
+					<div className="min-w-0 space-y-2">
+						<textarea
+							value={pasted}
+							onChange={(e) => setPasted(e.target.value)}
+							placeholder={"Paste a table here: CSV, TSV, Markdown table, JSON, HTML <table>, or copy straight from ChatGPT, Excel or Google Sheets.\n\nName,Role,Score\nAda,Engineer,92"}
+							spellCheck={false}
+							className="h-56 w-full resize-none rounded-xl border bg-background p-3 font-mono text-xs outline-none focus:ring-2 focus:ring-ring"
+						/>
+						<p className="text-xs text-zinc-400">Columns and their types are detected for you.</p>
+					</div>
+				) : !source ? (
 					<div
 						onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
 						onDragLeave={() => setDrag(false)}
@@ -75,14 +106,14 @@ const ImportModal = () => {
 						<input ref={input} type="file" accept={IMPORT_ACCEPT} hidden onChange={(e) => { load(e.target.files?.[0]); e.target.value = ""; }} />
 					</div>
 				) : (
-					<div className="space-y-3">
+					<div className="min-w-0 space-y-3">
 						<div className="flex items-center gap-2 text-xs text-zinc-500"><FileSpreadsheet className="h-4 w-4" /> {source.fileName} · {source.matrix.length.toLocaleString()} lines</div>
 						<div className="flex items-center gap-3">
 							<input value={name} onChange={(e) => setName(e.target.value)} placeholder="Table name" className="h-9 flex-1 rounded-xl border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring" />
 							<label className="flex cursor-pointer items-center gap-2 text-xs"><input type="checkbox" checked={header} onChange={(e) => setHeader(e.target.checked)} /> First row is the header</label>
 						</div>
-						<div className="hide-scrollbar max-h-64 overflow-auto rounded-xl border">
-							<table className="w-full border-collapse text-xs">
+						<div className="hide-scrollbar max-h-64 w-full max-w-full overflow-auto rounded-xl border">
+							<table className="w-max min-w-full border-collapse text-xs">
 								<thead className="sticky top-0 bg-zinc-50 dark:bg-zinc-900">
 									<tr>{parsed.table.columns.map((c) => <th key={c.id} className="whitespace-nowrap border-b px-3 py-2 text-left font-semibold">{c.name} <span className="font-normal text-zinc-400">· {typeOf(c.type).label}</span></th>)}</tr>
 								</thead>
@@ -103,7 +134,8 @@ const ImportModal = () => {
 				)}
 
 				<DialogFooter>
-					{source && <button type="button" onClick={reset} className="flex h-8 items-center rounded-xl border border-zinc-200 bg-zinc-100 px-3 text-xs font-medium text-zinc-700 hover:bg-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">Choose another file</button>}
+					{!source && tab === "paste" && <button type="button" onClick={usePasted} disabled={!pasted.trim()} className="flex h-8 items-center rounded-xl border border-indigo-300 bg-indigo-50 px-4 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 disabled:opacity-40 dark:border-indigo-500/50 dark:bg-indigo-950/40 dark:text-indigo-200">Preview table</button>}
+					{source && <button type="button" onClick={() => setSource(null)} className="flex h-8 items-center rounded-xl border border-zinc-200 bg-zinc-100 px-3 text-xs font-medium text-zinc-700 hover:bg-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">{source.fileName === "Pasted data" ? "Edit pasted data" : "Choose another file"}</button>}
 					{source && <button type="button" onClick={create} className="flex h-8 items-center rounded-xl border border-indigo-300 bg-indigo-50 px-4 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 dark:border-indigo-500/50 dark:bg-indigo-950/40 dark:text-indigo-200">Create table</button>}
 				</DialogFooter>
 			</DialogContent>
