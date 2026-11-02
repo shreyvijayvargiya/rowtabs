@@ -64,7 +64,7 @@ Everything is in the browser, so there are sensible caps (see `LIMITS` in `lib/t
 | Limit | Value |
 | --- | --- |
 | Tables per browser | 200 |
-| Rows per table | 2,000 |
+| Rows per table | 10,000 |
 | Columns per table | 40 |
 | One file or image in a cell | 2 MB |
 | One table | about 20 MB |

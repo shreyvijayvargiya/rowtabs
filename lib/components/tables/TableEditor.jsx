@@ -18,6 +18,7 @@ import {
 	ArrowUpDown,
 	ChevronLeft,
 	ChevronRight,
+	ClipboardPaste,
 	Code2,
 	Columns2,
 	Copy,
@@ -43,6 +44,7 @@ import { TableCtx } from "./context";
 import { AddColumn, ColumnMenu } from "./ColumnMenu";
 import FiltersPopover from "./FiltersPopover";
 import CodeViewModal from "./CodeViewModal";
+import BulkAddModal from "./BulkAddModal";
 import NoteIcon from "../NoteIcon";
 import { registerEditor, unregisterEditor } from "../../tables/tableOps";
 import { convertColumn } from "../../tables/convert";
@@ -70,6 +72,8 @@ const CellRenderer = ({ row, column, getValue, table }) => {
 	if (!col) return null;
 	return <Cell column={col} value={getValue()} onChange={(v) => setCell(row.original.id, col.id, v)} />;
 };
+
+const PAGE_SIZES = [10, 50, 100, 200, 400, 500, 800, 1000, 1500, 2000, 5000, 10000];
 
 const lightBtn =
 	"flex h-8 items-center gap-1.5 rounded-xl border border-zinc-200 bg-zinc-100 px-3 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-200 disabled:opacity-40 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700";
@@ -155,6 +159,7 @@ const TableEditor = ({ initialNote, breadcrumb = [], tables = [], splitCandidate
 	const [rowSelection, setRowSelection] = useState({});
 	const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 50 });
 	const [codeOpen, setCodeOpen] = useState(false);
+	const [bulkOpen, setBulkOpen] = useState(false);
 	const [confirmTable, setConfirmTable] = useState(false);
 	const [confirmRows, setConfirmRows] = useState(false);
 
@@ -501,6 +506,7 @@ const TableEditor = ({ initialNote, breadcrumb = [], tables = [], splitCandidate
 								<button type="button" onClick={() => setRowSelection({})} className={lightBtn}>Clear</button>
 							</>
 						)}
+						<button type="button" onClick={() => setBulkOpen(true)} disabled={noColumns} className={lightBtn}><ClipboardPaste className="h-3.5 w-3.5" /> Bulk add</button>
 						<button type="button" onClick={addRow} disabled={noColumns} className={lightBtn}><Plus className="h-3.5 w-3.5" /> Add row</button>
 					</div>
 				</div>
@@ -627,9 +633,9 @@ const TableEditor = ({ initialNote, breadcrumb = [], tables = [], splitCandidate
 						</span>
 						<div className="flex items-center gap-2">
 							<DropdownMenu>
-								<DropdownMenuTrigger asChild><button type="button" className="rounded-lg border px-2 py-1 hover:bg-zinc-100 dark:hover:bg-zinc-900">{pagination.pageSize} / page</button></DropdownMenuTrigger>
-								<DropdownMenuContent align="end">
-									{[25, 50, 100, 200].map((n) => <DropdownMenuItem key={n} onSelect={() => setPagination({ pageIndex: 0, pageSize: n })}>{n} rows per page</DropdownMenuItem>)}
+								<DropdownMenuTrigger asChild><button type="button" className="rounded-lg border px-2 py-1 hover:bg-zinc-100 dark:hover:bg-zinc-900">{pagination.pageSize.toLocaleString()} / page</button></DropdownMenuTrigger>
+								<DropdownMenuContent align="end" side="top" className="hide-scrollbar max-h-72 overflow-y-auto">
+									{PAGE_SIZES.map((n) => <DropdownMenuItem key={n} onSelect={() => setPagination({ pageIndex: 0, pageSize: n })} className={cn(n === pagination.pageSize && "bg-accent")}>{n.toLocaleString()} rows per page</DropdownMenuItem>)}
 								</DropdownMenuContent>
 							</DropdownMenu>
 							<button type="button" disabled={pageIndex === 0} onClick={() => rt.setPageIndex(pageIndex - 1)} className="rounded-lg border p-1 hover:bg-zinc-100 disabled:opacity-30 dark:hover:bg-zinc-900"><ChevronLeft className="h-3.5 w-3.5" /></button>
@@ -640,6 +646,7 @@ const TableEditor = ({ initialNote, breadcrumb = [], tables = [], splitCandidate
 				)}
 
 				<CodeViewModal open={codeOpen} onOpenChange={setCodeOpen} table={table} title={title} tables={tablesMap} />
+				<BulkAddModal open={bulkOpen} onOpenChange={setBulkOpen} table={table} onApply={(t) => { commit(t); setPagination((p) => ({ ...p, pageIndex: 0 })); }} />
 
 				<Dialog open={confirmTable} onOpenChange={setConfirmTable}>
 					<DialogContent>
